@@ -1,12 +1,9 @@
-// app/screens/home/styles.ts
+// app/screens/chat/styles.ts
 import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-  },
-  scrollContent: {
-    paddingBottom: 60, // Add padding to avoid overlap with the footer
   },
 });

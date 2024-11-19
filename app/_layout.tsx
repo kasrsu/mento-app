@@ -19,6 +19,12 @@ export default function RootLayout() {
             title: 'Home',
           }}
         />
+        <Stack.Screen 
+          name="screens/chat/index" 
+          options={{
+            title: 'Chat',
+          }}
+        />
       </Stack>
     </>
   );
