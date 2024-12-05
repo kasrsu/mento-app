@@ -1,26 +1,98 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
-import styles from './styles';
+// app/components/ChatInterface/index.tsx
+import React, { useState, useRef, useEffect } from 'react';
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  Alert,
+  ScrollView,
+  Platform 
+} from 'react-native';
 import axios from 'axios';
-import AxiosError from 'axios-error';
+import Animated, { 
+  useAnimatedStyle, 
+  withSpring, 
+  withSequence,
+  withTiming,
+  useSharedValue 
+} from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
+import { MaterialIcons } from '@expo/vector-icons';
+import styles from './styles';
+
+// Keep existing axios configuration
+axios.defaults.baseURL = 'http://192.168.1.3:8000';
+axios.defaults.timeout = 1000000;
+axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 interface Message {
   type: 'user' | 'bot';
   text: string;
+  id?: string;
 }
 
-// Configure axios for Android
-//axios.defaults.baseURL = 'http://10.0.2.2:8000';  // For Android Emulator
-axios.defaults.baseURL = 'http://192.168.1.3:8000';  // For Physical Device
-axios.defaults.timeout = 1000000; // Increase timeout to 30 seconds
-axios.defaults.headers.common['Content-Type'] = 'application/json';
+// Add animation components
+const MessageBubble = ({ message }: { message: Message }) => {
+  const translateY = useSharedValue(50);
+  const opacity = useSharedValue(0);
+
+  useEffect(() => {
+    translateY.value = withSpring(0);
+    opacity.value = withTiming(1, { duration: 300 });
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View style={[
+      styles.messageBubble,
+      message.type === 'user' ? styles.userBubble : styles.botBubble,
+      animatedStyle
+    ]}>
+      <Text style={styles.messageText}>{message.text}</Text>
+    </Animated.View>
+  );
+};
+
+const TypingIndicator = () => {
+  const opacity = useSharedValue(0.3);
+
+  useEffect(() => {
+    const animation = () => {
+      opacity.value = withSequence(
+        withTiming(1, { duration: 500 }),
+        withTiming(0.3, { duration: 500 })
+      );
+    };
+    const interval = setInterval(animation, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const dotStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  return (
+    <View style={styles.typingContainer}>
+      <Animated.View style={[styles.typingDot, dotStyle]} />
+      <Animated.View style={[styles.typingDot, dotStyle]} />
+      <Animated.View style={[styles.typingDot, dotStyle]} />
+    </View>
+  );
+};
 
 const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const inputScale = useSharedValue(1);
 
-  // Test connection on component mount
+  // Keep existing connection test
   useEffect(() => {
     const testConnection = async () => {
       try {
@@ -38,106 +110,88 @@ const ChatInterface = () => {
   }, []);
 
   const handleSend = async () => {
-    if (input.trim()) {
-      const userMessage: Message = { type: 'user', text: input.trim() };
-      const currentInput = input.trim();
-      setMessages(prevMessages => [...prevMessages, userMessage]);
-      setInput('');
-      setIsLoading(true);
+    if (!input.trim()) return;
 
-      try {
-        console.log('Sending message:', currentInput);
-        interface ChatResponse {
-          message: string;
-        }
+    // Add haptic feedback
+    if (Platform.OS !== 'web') {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
 
-        const response = await axios.post<ChatResponse>('/chat', {
-          message: currentInput
-        });
+    // Animate send button
+    inputScale.value = withSequence(
+      withTiming(0.9, { duration: 100 }),
+      withTiming(1, { duration: 100 })
+    );
 
-        console.log('Received response:', response.data);
-        
-        if (response.data && response.data.message) {
-          const botMessage: Message = { 
-            type: 'bot', 
-            text: response.data.message 
-          };
-          setMessages(prevMessages => [...prevMessages, botMessage]);
-        } else {
-          throw new Error('Invalid response format');
-        }
-      } catch (error) {
-        console.error('Error details:', error);
-        
-        let errorMessage = 'Unable to send message. ';
-        if (error instanceof AxiosError) {
-          errorMessage += error.message;
-          if (error.response) {
-            console.log('Error response:', error.response);
-          }
-        }
-        
-        Alert.alert('Error', errorMessage);
-        // Restore the input in case of error
-        setInput(currentInput);
-      } finally {
-        setIsLoading(false);
-      }
+    const userMessage: Message = {
+      type: 'user',
+      text: input.trim(),
+      id: Date.now().toString()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
+
+    try {
+      const response = await axios.post<{ message: string }>('/chat', {
+        message: input.trim()
+      });
+
+      const botMessage: Message = {
+        type: 'bot',
+        text: response.data.message,
+        id: (Date.now() + 1).toString()
+      };
+
+      setMessages(prev => [...prev, botMessage]);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to send message. Please try again.');
+    } finally {
+      setIsLoading(false);
+      scrollViewRef.current?.scrollToEnd({ animated: true });
     }
   };
 
+  const inputStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: inputScale.value }]
+  }));
+
   return (
     <View style={styles.container}>
-      <ScrollView 
-        style={styles.messageList}
-        ref={ref => {
-          if (ref) {
-            ref.scrollToEnd({ animated: true });
-          }
-        }}
+      <ScrollView
+        ref={scrollViewRef}
+        style={styles.messagesContainer}
+        contentContainerStyle={styles.messagesList}
+        onContentSizeChange={() => scrollViewRef.current?.scrollToEnd()}
       >
-        {messages.map((message, index) => (
-          <View 
-            key={index} 
-            style={[
-              message.type === 'user' ? styles.userMessage : styles.botMessage,
-              styles.messageContainer
-            ]}
-          >
-            <Text style={styles.messageText}>{message.text}</Text>
-          </View>
+        {messages.map(message => (
+          <MessageBubble key={message.id} message={message} />
         ))}
-        {isLoading && (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#0000ff" />
-            <Text style={styles.loadingText}>Waiting for response...</Text>
-          </View>
-        )}
+        {isLoading && <TypingIndicator />}
       </ScrollView>
-      
-      <View style={styles.inputContainer}>
+
+      <Animated.View style={[styles.inputContainer, inputStyle]}>
         <TextInput
-          style={[
-            styles.inputBox,
-            isLoading && styles.inputDisabled
-          ]}
+          style={styles.input}
           value={input}
           onChangeText={setInput}
           placeholder="Type your message..."
-          editable={!isLoading}
           multiline
+          onSubmitEditing={handleSend}
         />
         <TouchableOpacity 
-          style={[
-            styles.sendButton,
-            (!input.trim() || isLoading) && styles.sendButtonDisabled
-          ]} 
+          style={styles.sendButton} 
           onPress={handleSend}
           disabled={!input.trim() || isLoading}
         >
-          <Text style={styles.sendButtonText}>Send</Text>
+          <MaterialIcons 
+            name="send" 
+            size={24} 
+            color={input.trim() && !isLoading ? '#2196F3' : '#ccc'} 
+          />
         </TouchableOpacity>
-      </View>
+      </Animated.View>
     </View>
   );
 };

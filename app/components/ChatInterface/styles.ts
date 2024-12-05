@@ -1,75 +1,65 @@
+// app/components/ChatInterface/styles.ts
 import { StyleSheet } from 'react-native';
 
-const styles = StyleSheet.create({
+export default StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  messageList: {
+  messagesContainer: {
     flex: 1,
-    padding: 10,
   },
-  messageContainer: {
+  messagesList: {
+    padding: 16,
+  },
+  messageBubble: {
     maxWidth: '80%',
-    marginVertical: 5,
-    padding: 10,
-    borderRadius: 15,
+    padding: 12,
+    borderRadius: 16,
+    marginVertical: 4,
   },
-  userMessage: {
+  userBubble: {
     alignSelf: 'flex-end',
-    backgroundColor: '#007AFF',
+    backgroundColor: '#2196F3',
   },
-  botMessage: {
+  botBubble: {
     alignSelf: 'flex-start',
-    backgroundColor: '#E5E5EA',
+    backgroundColor: '#e0e0e0',
   },
   messageText: {
-    color: '#000000',
     fontSize: 16,
+    color: '#fff',
+  },
+  typingContainer: {
+    flexDirection: 'row',
+    padding: 8,
+    alignSelf: 'flex-start',
+  },
+  typingDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#999',
+    marginHorizontal: 2,
   },
   inputContainer: {
     flexDirection: 'row',
-    padding: 10,
-    backgroundColor: '#ffffff',
+    alignItems: 'center',
+    padding: 8,
+    backgroundColor: '#fff',
     borderTopWidth: 1,
-    borderTopColor: '#e5e5e5',
+    borderTopColor: '#e0e0e0',
   },
-  inputBox: {
+  input: {
     flex: 1,
-    marginRight: 10,
-    padding: 10,
-    backgroundColor: '#ffffff',
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#e5e5e5',
-    maxHeight: 100,
-  },
-  inputDisabled: {
     backgroundColor: '#f5f5f5',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginRight: 8,
+    fontSize: 16,
   },
   sendButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 20,
-    borderRadius: 20,
-  },
-  sendButtonDisabled: {
-    backgroundColor: '#cccccc',
-  },
-  sendButtonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  loadingContainer: {
-    alignItems: 'center',
-    padding: 10,
-  },
-  loadingText: {
-    marginTop: 5,
-    color: '#666666',
-  },
+    padding: 8,
+  }
 });
-
-export default styles;
