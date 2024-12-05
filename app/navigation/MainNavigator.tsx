@@ -4,9 +4,11 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { TransitionPresets } from '@react-navigation/stack';
 import HomeScreen from '../screens/home/index';
+import ProgressScreen from '../screens/progress/index';
 
 export type RootStackParamList = {
   Home: undefined;
+  Progress: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -27,6 +29,14 @@ const MainNavigator: React.FC = () => (
         component={HomeScreen}
         options={{
           title: 'Home',
+          headerShown: false,
+        }} 
+      />
+      <Stack.Screen 
+        name="Progress" 
+        component={ProgressScreen}
+        options={{
+          title: 'Progress',
           headerShown: false,
         }} 
       />

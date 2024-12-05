@@ -12,7 +12,7 @@ interface Message {
 // Configure axios for Android
 //axios.defaults.baseURL = 'http://10.0.2.2:8000';  // For Android Emulator
 axios.defaults.baseURL = 'http://192.168.1.3:8000';  // For Physical Device
-axios.defaults.timeout = 30000; // Increase timeout to 30 seconds
+axios.defaults.timeout = 1000000; // Increase timeout to 30 seconds
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 const ChatInterface = () => {
