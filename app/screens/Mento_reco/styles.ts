@@ -5,15 +5,17 @@ export default StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 100, // Extra padding for footer
+  screenTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    padding: 20,
   },
-  // Add card styling for child components
-  cardContainer: {
+  listContainer: {
+    padding: 16,
+  },
+  card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
+    borderRadius: 12,
     padding: 20,
     marginBottom: 16,
     shadowColor: '#000',
@@ -24,5 +26,14 @@ export default StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 5,
-  }
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  cardDescription: {
+    fontSize: 14,
+    color: '#666',
+  },
 });

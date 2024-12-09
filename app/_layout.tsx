@@ -20,6 +20,12 @@ export default function RootLayout() {
           }}
         />
         <Stack.Screen 
+          name="screens/Mento_reco/index" 
+          options={{
+            title: 'Recommendations',
+          }}
+        />
+        <Stack.Screen 
           name="screens/chat/index" 
           options={{
             title: 'Chat',

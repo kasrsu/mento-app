@@ -8,7 +8,7 @@ import styles from './styles';
 const navItems: { id: number; label: string; icon: 'home' | 'explore' | 'trending-up' | 'notifications' | 'chat'; route: string }[] = [
   { id: 1, label: 'Home', icon: 'home', route: '/screens/home' },
   { id: 2, label: 'Explore', icon: 'explore', route: '/screens/explore' },
-  { id: 3, label: 'Progress', icon: 'trending-up', route: '/screens/progress' },
+  { id: 3, label: 'Progress', icon: 'trending-up', route: '/screens/Mento_reco' },
   { id: 4, label: 'Notifications', icon: 'notifications', route: '/screens/notifications' },
   { id: 5, label: 'Chat', icon: 'chat', route: '/screens/Chat' },
 ];
