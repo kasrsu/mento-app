@@ -28,7 +28,7 @@ export default function HomeScreen() {
           <Header />
           <ProgressCard />
           <QuickStartMenu />
-          <RecommendationsCarousel />
+          <RecommendationsCarousel modules={[]} />
           <UpcomingTasks />
           <CourseInsights />
         </Animated.View>

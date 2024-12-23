@@ -3,23 +3,23 @@ import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
   container: {
-    marginVertical: 20,
+    flex: 1,
+    padding: 16,
   },
   title: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 15,
-    paddingHorizontal: 20,
+    marginBottom: 16,
   },
   scrollContent: {
-    paddingHorizontal: 15,
+    paddingRight: 16,
   },
   card: {
-    backgroundColor: '#fff',
+    width: 280,
+    padding: 16,
+    marginRight: 16,
     borderRadius: 12,
-    padding: 15,
-    marginHorizontal: 5,
-    width: 250,
+    backgroundColor: '#ffffff',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -27,24 +27,28 @@ export default StyleSheet.create({
     elevation: 3,
   },
   cardTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   cardDescription: {
     fontSize: 14,
     color: '#666',
-    marginBottom: 15,
+    marginBottom: 16,
   },
   actionButton: {
-    backgroundColor: '#2196F3',
-    padding: 10,
+    backgroundColor: '#007AFF',
+    padding: 12,
     borderRadius: 8,
     alignItems: 'center',
   },
   buttonText: {
-    color: '#fff',
-    fontSize: 14,
+    color: '#ffffff',
     fontWeight: '600',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 16,
+    textAlign: 'center',
   },
 });

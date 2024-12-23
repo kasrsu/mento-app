@@ -29,7 +29,7 @@ export default function HomeScreen() {
         </AnimatedWrapper>
 
         <AnimatedWrapper delay={300}>
-          <RecommendationsCarousel />
+          <RecommendationsCarousel modules={[]} />
         </AnimatedWrapper>
 
         <AnimatedWrapper delay={400}>

@@ -19,10 +19,12 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import styles from './styles';
+import RecommendationsCarousel from '../RecomendationsCarousel';
 
 // Keep existing axios configuration
-axios.defaults.baseURL = 'http://192.168.1.3:8000';
+axios.defaults.baseURL = 'http://192.168.1.44:8000';
 axios.defaults.timeout = 1000000;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
@@ -30,6 +32,18 @@ interface Message {
   type: 'user' | 'bot';
   text: string;
   id?: string;
+}
+interface ApiResponse {
+  status: 'success' | 'error';
+  message: string;
+  modules?: Module[];
+  details?: string;
+}
+
+interface Module {
+  id: string;
+  name: string;
+  description: string;
 }
 
 // Add animation components
@@ -86,18 +100,20 @@ const TypingIndicator = () => {
 };
 
 const ChatInterface = () => {
+  const navigation = useNavigation();
+  const scrollViewRef = useRef<ScrollView>(null);
+  const inputScale = useSharedValue(1);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const scrollViewRef = useRef<ScrollView>(null);
-  const inputScale = useSharedValue(1);
-
+  const [recommendedModules, setRecommendedModules] = useState<Module[]>([]);
+  
   // Keep existing connection test
   useEffect(() => {
     const testConnection = async () => {
       try {
-        await axios.get('/');
-        console.log('Backend connection successful');
+        const response = await axios.get<ApiResponse>('/');
+        console.log('Backend connection successful:', response.data);
       } catch (error) {
         console.error('Backend connection failed:', error);
         Alert.alert(
@@ -112,12 +128,10 @@ const ChatInterface = () => {
   const handleSend = async () => {
     if (!input.trim()) return;
 
-    // Add haptic feedback
     if (Platform.OS !== 'web') {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
 
-    // Animate send button
     inputScale.value = withSequence(
       withTiming(0.9, { duration: 100 }),
       withTiming(1, { duration: 100 })
@@ -134,7 +148,7 @@ const ChatInterface = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post<{ message: string }>('/chat', {
+      const response = await axios.post<ApiResponse>('/chat', {
         message: input.trim()
       });
 
@@ -145,13 +159,20 @@ const ChatInterface = () => {
       };
 
       setMessages(prev => [...prev, botMessage]);
+
+      if (response.data.modules && response.data.modules.length > 0) {
+        setRecommendedModules(response.data.modules);
+      }
+
     } catch (error) {
+      console.error('Chat error:', error);
       Alert.alert('Error', 'Failed to send message. Please try again.');
     } finally {
       setIsLoading(false);
       scrollViewRef.current?.scrollToEnd({ animated: true });
     }
   };
+
 
   const inputStyle = useAnimatedStyle(() => ({
     transform: [{ scale: inputScale.value }]
@@ -171,6 +192,10 @@ const ChatInterface = () => {
         {isLoading && <TypingIndicator />}
       </ScrollView>
 
+      {recommendedModules.length > 0 && (
+        <RecommendationsCarousel modules={recommendedModules} />
+      )}
+      
       <Animated.View style={[styles.inputContainer, inputStyle]}>
         <TextInput
           style={styles.input}
