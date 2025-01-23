@@ -18,7 +18,7 @@ const RecommendationsCarousel: React.FC<RecommendationsCarouselProps> = ({ modul
   const navigation = useNavigation<NavigationProp>();
 
   const handleModulePress = (module: Module) => {
-    navigation.navigate('screens/Mento_reco/index', { modules: [module] });
+    navigation.navigate('screens/Recommendations/index', { modules: [module] });
   };
 
   return (
@@ -29,8 +29,8 @@ const RecommendationsCarousel: React.FC<RecommendationsCarouselProps> = ({ modul
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {modules.map((module) => (
-          <View key={module.id} style={styles.card}>
+        {modules.map((module, index) => (
+          <View key={`${module.id}-${index}`} style={styles.card}>
             <Text style={styles.cardTitle}>{module.name}</Text>
             <Text style={styles.cardDescription}>{module.description}</Text>
             <TouchableOpacity 

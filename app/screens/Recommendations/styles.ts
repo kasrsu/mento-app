@@ -36,4 +36,27 @@ export default StyleSheet.create({
     fontSize: 14,
     color: '#666',
   },
+  header: {
+    backgroundColor: '#2196F3',
+    paddingVertical: 55,
+    paddingHorizontal: 30,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    marginBottom: 40,
+  },
+  headerTitle: {
+    fontSize: 40,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 15,
+  },
+  headerSubtitle: {
+    fontSize: 18,
+    color: '#FFFFFF',
+    opacity: 0.9,
+  },
+  content: {
+    flex: 1,
+    marginTop: -25,
+  },
 });

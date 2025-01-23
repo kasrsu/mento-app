@@ -1,4 +1,3 @@
-// app/components/ChatInterface/index.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   View, 
@@ -7,7 +6,8 @@ import {
   TouchableOpacity, 
   Alert,
   ScrollView,
-  Platform 
+  Platform
+  // Remove Modal import
 } from 'react-native';
 import axios from 'axios';
 import Animated, { 
@@ -19,9 +19,12 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '../../navigation/types';
 import styles from './styles';
 import RecommendationsCarousel from '../RecomendationsCarousel';
+import type { ChatScreenNavigationProp } from '../../navigation/types';
+import PopupMessage from './PoPupMessage/index';
 
 // Keep existing axios configuration
 axios.defaults.baseURL = 'http://192.168.1.44:8000';
@@ -100,14 +103,17 @@ const TypingIndicator = () => {
 };
 
 const ChatInterface = () => {
-  const navigation = useNavigation();
+
   const scrollViewRef = useRef<ScrollView>(null);
   const inputScale = useSharedValue(1);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [recommendedModules, setRecommendedModules] = useState<Module[]>([]);
-  
+  const [isVisible, setIsVisible] = useState(false);  // Replace isModalVisible
+  const [error, setError] = useState<string | null>(null);
+  const navigation = useNavigation<ChatScreenNavigationProp>();
+
   // Keep existing connection test
   useEffect(() => {
     const testConnection = async () => {
@@ -126,57 +132,87 @@ const ChatInterface = () => {
   }, []);
 
   const handleSend = async () => {
-    if (!input.trim()) return;
-
-    if (Platform.OS !== 'web') {
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-
-    inputScale.value = withSequence(
-      withTiming(0.9, { duration: 100 }),
-      withTiming(1, { duration: 100 })
-    );
-
-    const userMessage: Message = {
-      type: 'user',
-      text: input.trim(),
-      id: Date.now().toString()
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
-    setIsLoading(true);
+    if (!input.trim() || isLoading) return;
 
     try {
-      const response = await axios.post<ApiResponse>('/chat', {
-        message: input.trim()
-      });
+      setIsLoading(true);
+      setError(null);
 
-      const botMessage: Message = {
-        type: 'bot',
-        text: response.data.message,
-        id: (Date.now() + 1).toString()
+      if (Platform.OS !== 'web') {
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      }
+
+      const userMessage: Message = {
+        type: 'user',
+        text: input.trim(),
+        id: Date.now().toString()
       };
 
-      setMessages(prev => [...prev, botMessage]);
+      setMessages(prev => [...prev, userMessage]);
+      const currentInput = input.trim();
+      setInput('');
 
-      if (response.data.modules && response.data.modules.length > 0) {
-        setRecommendedModules(response.data.modules);
+      const response = await axios.post<ApiResponse>('/chat', {
+        message: currentInput
+      });
+
+      if (response.data && response.data.message) {
+        const botMessage: Message = {
+          type: 'bot',
+          text: response.data.message,
+          id: (Date.now() + 1).toString()
+        };
+
+        setMessages(prev => [...prev, botMessage]);
+
+        if (response.data.modules && response.data.modules.length > 0) {
+          setRecommendedModules(response.data.modules);
+          // Update this line
+          setTimeout(() => setIsVisible(true), 500);
+        }
       }
 
     } catch (error) {
       console.error('Chat error:', error);
+      setError('Failed to send message');
       Alert.alert('Error', 'Failed to send message. Please try again.');
     } finally {
       setIsLoading(false);
-      scrollViewRef.current?.scrollToEnd({ animated: true });
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
     }
   };
 
+  const handleStartCourse = () => {
+    try {
+      setIsVisible(false);  // Update this line
+      if (recommendedModules && recommendedModules.length > 0) {
+        // Fix the navigation path - remove 'screens/' prefix
+        navigation.navigate('screens/Recommendations/index', {
+          modules: recommendedModules
+        });
+      }
+    } catch (error) {
+      console.error('Navigation error:', error);
+      setError('Navigation failed');
+      Alert.alert('Error', 'Failed to navigate to recommendations.');
+    }
+  };
 
   const inputStyle = useAnimatedStyle(() => ({
     transform: [{ scale: inputScale.value }]
   }));
+
+  // Add cleanup effect
+  useEffect(() => {
+    return () => {
+      setMessages([]);
+      setIsLoading(false);
+      setIsVisible(false);
+      setError(null);
+    };
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -196,6 +232,21 @@ const ChatInterface = () => {
         <RecommendationsCarousel modules={recommendedModules} />
       )}
       
+      <PopupMessage
+        visible={isVisible}
+        title="Start Recommended Courses"
+        message="Do you want to start the recommended courses?"
+        onYes={handleStartCourse}
+        onNo={() => setIsVisible(false)}
+      />
+
+      {/* Show error message if exists */}
+      {error && (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      )}
+
       <Animated.View style={[styles.inputContainer, inputStyle]}>
         <TextInput
           style={styles.input}

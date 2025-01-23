@@ -61,5 +61,68 @@ export default StyleSheet.create({
   },
   sendButton: {
     padding: 8,
-  }
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    width: '80%',
+    alignItems: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 20,
+    textAlign: 'center',
+    color: '#333',
+  },
+  modalButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+  },
+  modalButton: {
+    padding: 10,
+    borderRadius: 10,
+    minWidth: 100,
+    marginHorizontal: 10,
+  },
+  modalButtonConfirm: {
+    backgroundColor: '#2196F3',
+  },
+  modalButtonCancel: {
+    backgroundColor: '#ff6b6b',
+  },
+  modalButtonText: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  errorContainer: {
+    backgroundColor: '#ffebee',
+    padding: 8,
+    margin: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ef5350',
+  },
+  errorText: {
+    color: '#c62828',
+    fontSize: 14,
+    textAlign: 'center',
+  },
 });
