@@ -72,7 +72,7 @@ export const styles = StyleSheet.create({
     shadowRadius: 3.84,
   },
   yesButton: {
-    backgroundColor: '#2973A2',
+    backgroundColor: '#2196F3',
     borderWidth: 1,
     borderColor: '#43A047',
   },
