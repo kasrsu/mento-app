@@ -14,6 +14,11 @@ interface RecommendationsCarouselProps {
   modules: Module[];
 }
 
+const truncateText = (text: string, maxLength: number) => {
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength - 3) + '...';
+};
+
 const RecommendationsCarousel: React.FC<RecommendationsCarouselProps> = ({ modules }) => {
   const navigation = useNavigation<NavigationProp>();
 
@@ -31,13 +36,17 @@ const RecommendationsCarousel: React.FC<RecommendationsCarouselProps> = ({ modul
       >
         {modules.map((module, index) => (
           <View key={`${module.id}-${index}`} style={styles.card}>
-            <Text style={styles.cardTitle}>{module.name}</Text>
-            <Text style={styles.cardDescription}>{module.description}</Text>
+            <View style={styles.cardContent}>
+              <Text style={styles.cardTitle}>{module.name}</Text>
+              <Text style={styles.cardDescription} numberOfLines={3}>
+                {truncateText(module.description, 100)}
+              </Text>
+            </View>
             <TouchableOpacity 
-              style={styles.actionButton}
+              style={styles.startButton}
               onPress={() => handleModulePress(module)}
             >
-              <Text style={styles.buttonText}>Start Now</Text>
+              <Text style={styles.startButtonText}>Start Learning</Text>
             </TouchableOpacity>
           </View>
         ))}

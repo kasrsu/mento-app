@@ -3,9 +3,12 @@ import React from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
+import { SessionProvider } from '../SessionContext';
+
 export default function RootLayout() {
   return (
     <>
+    <SessionProvider>
       <StatusBar style="dark" />
       <Stack
         screenOptions={{
@@ -21,7 +24,7 @@ export default function RootLayout() {
           }}
         />
         <Stack.Screen 
-          name="screens/Mento_reco/index" 
+          name="screens/Reccomendations/index" 
           options={{
             title: 'Recommendations',
           }}
@@ -33,6 +36,7 @@ export default function RootLayout() {
           }}
         />
       </Stack>
+    </SessionProvider>
     </>
   );
 }

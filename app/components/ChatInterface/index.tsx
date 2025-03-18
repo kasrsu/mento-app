@@ -1,33 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  Alert,
-  ScrollView,
-  Platform
-  // Remove Modal import
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, Platform } from 'react-native';
 import axios from 'axios';
-import Animated, { 
-  useAnimatedStyle, 
-  withSpring, 
-  withSequence,
-  withTiming,
-  useSharedValue 
-} from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, withSpring, withSequence, withTiming, useSharedValue } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { RootStackParamList } from '../../navigation/types';
+import { useNavigation } from '@react-navigation/native';
+import { ChatScreenNavigationProp } from '../../navigation/types';
 import styles from './styles';
-import RecommendationsCarousel from '../RecomendationsCarousel';
-import type { ChatScreenNavigationProp } from '../../navigation/types';
+import RecommendationsCarousel from '../RecomendationCourse';
 import PopupMessage from './PoPupMessage/index';
+import { useSession } from '../../../SessionContext';
 
 // Keep existing axios configuration
-axios.defaults.baseURL = 'http://192.168.1.44:8000';
+axios.defaults.baseURL = 'http://192.168.231.152:8000';
 axios.defaults.timeout = 1000000;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
@@ -103,16 +88,15 @@ const TypingIndicator = () => {
 };
 
 const ChatInterface = () => {
-
   const scrollViewRef = useRef<ScrollView>(null);
   const inputScale = useSharedValue(1);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [recommendedModules, setRecommendedModules] = useState<Module[]>([]);
-  const [isVisible, setIsVisible] = useState(false);  // Replace isModalVisible
+  const [isVisible, setIsVisible] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigation = useNavigation<ChatScreenNavigationProp>();
+  const { cachedModules = [], updateModules } = useSession(); // Use cachedModules instead of modules
 
   // Keep existing connection test
   useEffect(() => {
@@ -166,8 +150,7 @@ const ChatInterface = () => {
         setMessages(prev => [...prev, botMessage]);
 
         if (response.data.modules && response.data.modules.length > 0) {
-          setRecommendedModules(response.data.modules);
-          // Update this line
+          await updateModules(response.data.modules);
           setTimeout(() => setIsVisible(true), 500);
         }
       }
@@ -186,11 +169,10 @@ const ChatInterface = () => {
 
   const handleStartCourse = () => {
     try {
-      setIsVisible(false);  // Update this line
-      if (recommendedModules && recommendedModules.length > 0) {
-        // Fix the navigation path - remove 'screens/' prefix
+      setIsVisible(false);
+      if (cachedModules && cachedModules.length > 0) {
         navigation.navigate('screens/Recommendations/index', {
-          modules: recommendedModules
+          modules: cachedModules
         });
       }
     } catch (error) {
@@ -228,8 +210,8 @@ const ChatInterface = () => {
         {isLoading && <TypingIndicator />}
       </ScrollView>
 
-      {recommendedModules.length > 0 && (
-        <RecommendationsCarousel modules={recommendedModules} />
+      {cachedModules?.length > 0 && (
+        <RecommendationsCarousel modules={cachedModules} />
       )}
       
       <PopupMessage
@@ -240,7 +222,6 @@ const ChatInterface = () => {
         onNo={() => setIsVisible(false)}
       />
 
-      {/* Show error message if exists */}
       {error && (
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>{error}</Text>

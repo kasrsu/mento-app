@@ -4,7 +4,7 @@ import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-na
 import Header from '../../components/Header';
 import ProgressCard from '../../components/ProgressCard';
 import QuickStartMenu from '../../components/QuickStartMenu';
-import RecommendationsCarousel from '../../components/RecomendationsCarousel';
+import RecommendationsCarousel from '../../components/RecomendationCourse';
 import UpcomingTasks from '../../components/UpcomingTasks';
 import CourseInsights from '../../components/CourseInsights';
 import FooterNavBar from '../../components/FooterNavBar';
