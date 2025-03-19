@@ -1,7 +1,26 @@
 import { StackNavigationProp } from '@react-navigation/stack';
+import { NavigationProp as RNNavigationProp } from '@react-navigation/native';
 
 export type RootStackParamList = {
+  // Main route names
+  Home: undefined;
+  Progress: undefined;
+  Recommendations: {
+    modules: Array<{
+      id: string;
+      name: string;
+      description: string;
+    }>;
+  };
+  Chat: undefined;
+  ModuleContent: {
+    moduleName: string;
+    moduleDescription: string;
+    moduleId: string;
+  };
+  // Path-style routes for backward compatibility
   'screens/home/index': undefined;
+  'screens/progress/index': undefined;
   'screens/Recommendations/index': {
     modules: Array<{
       id: string;
@@ -10,11 +29,16 @@ export type RootStackParamList = {
     }>;
   };
   'screens/chat/index': undefined;
+  'screens/ModuleContent/index': {
+    moduleName: string;
+    moduleDescription: string;
+    moduleId: string;
+  };
 };
 
-export type NavigationProp = StackNavigationProp<RootStackParamList>;
+export type NavigationProp = RNNavigationProp<RootStackParamList>;
 
 export type ChatScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
-  'screens/chat/index'
+  'Chat'
 >;

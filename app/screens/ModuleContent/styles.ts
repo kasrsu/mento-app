@@ -1,5 +1,6 @@
-import { StyleSheet } from 'react-native';
-import { ProgressBar } from 'react-native-paper';
+import { StyleSheet, Dimensions } from 'react-native';
+
+const screenHeight = Dimensions.get('window').height;
 
 export default StyleSheet.create({
   seeMore: {
@@ -28,7 +29,7 @@ export default StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F8F9FB',
   },
   screenTitle: {
     fontSize: 24,
@@ -62,12 +63,26 @@ export default StyleSheet.create({
     marginBottom: 8,
   },
   header: {
-    backgroundColor: '#2196F3',
-    paddingVertical: 55,
-    paddingHorizontal: 30,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    marginBottom: 40,
+    paddingTop: 60,
+    paddingBottom: 30,
+    paddingHorizontal: 20,
+    backgroundColor: '#3A86FF',
+    borderBottomLeftRadius: 25,
+    borderBottomRightRadius: 25,
+    elevation: 8,
+    shadowColor: '#3A86FF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  headerTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  backButton: {
+    marginRight: 10,
+    padding: 5,
   },
   headerTitle: {
     fontSize: 40,
@@ -83,5 +98,161 @@ export default StyleSheet.create({
   content: {
     flex: 1,
     marginTop: -25,
+  },
+  // New styles moved from index.tsx
+  moduleNameBadge: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#FFF',
+    marginBottom: 8,
+  },
+  moduleDescription: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginBottom: 15,
+    lineHeight: 22,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  actionButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 20,
+  },
+  progressContainer: {
+    padding: 16,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  progressText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
+  },
+  progressBarContainer: {
+    height: 8,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  contentContainer: {
+    flex: 1,
+  },
+  contentContainerStyle: {
+    padding: 16,
+    paddingTop: 20,
+    paddingBottom: 100,
+  },
+  sectionContainer: {
+    marginBottom: 16,
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    overflow: 'hidden',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07,
+    shadowRadius: 3,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#FFFFFF',
+    borderLeftWidth: 0,
+    borderLeftColor: 'transparent',
+  },
+  activeSection: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#3A86FF',
+    backgroundColor: '#F0F7FF',
+  },
+  sectionTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#2D3748',
+    marginLeft: 10,
+  },
+  chatContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    elevation: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 5,
+    overflow: 'hidden',
+    zIndex: 100,
+  },
+  fullScreenChat: {
+    top: 0,
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
+  },
+  collapsedChatContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+  },
+  collapsedChatInput: {
+    flex: 1,
+    height: 50,
+    backgroundColor: '#F0F4FF',
+    borderRadius: 25,
+    paddingHorizontal: 20,
+    fontSize: 16,
+    color: '#333',
+  },
+  collapsedSendButton: {
+    width: 45,
+    height: 45,
+    borderRadius: 22.5,
+    backgroundColor: '#3A86FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 10,
+  },
+  expandedChatContainer: {
+    flex: 1,
+  },
+  chatHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EFEFEF',
+    backgroundColor: '#FFFFFF',
+  },
+  chatHeaderTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#2D3748',
+  },
+  chatHeaderActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerIconButton: {
+    padding: 5,
+    marginLeft: 10,
   },
 });
