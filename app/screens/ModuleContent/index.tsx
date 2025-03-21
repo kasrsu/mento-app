@@ -71,6 +71,8 @@ const ModuleContent: React.FC = () => {
             isExpanded={expandedSection === 'topics'}
             onToggleExpand={() => toggleSection('topics')}
             onProgressUpdate={handleProgressUpdate}
+            moduleId={moduleId} // Pass moduleId to ModuleTopicsList
+            moduleName={moduleName} // Add moduleName prop
           />
 
           {/* Resources Section Component */}

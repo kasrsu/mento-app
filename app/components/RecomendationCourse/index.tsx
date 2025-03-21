@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NavigationProp } from '../../navigation/types';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import styles from './styles';
+import { startModuleLearning } from '../../services/moduleApi';
 
 interface Module {
   id: string;
@@ -43,22 +44,36 @@ const RecommendationsComponent: React.FC<RecommendationsProps> = ({
     setExpandedCardIndex(expandedCardIndex === index ? null : index);
   };
 
-  const handleModulePress = (module: Module) => {
+  const handleModulePress = async (module: Module) => {
     try {
       console.log('Module object before navigation:', module);
       
       const moduleName = module?.name || 'Unknown Module';
+      const moduleId = module?.id || 'unknown';
+      const moduleDescription = module?.description || '';
+
+      // Send data to backend
+      await startModuleLearning({
+        moduleId,
+        moduleName,
+        moduleDescription
+      });
       
       console.log('Extracted module name:', moduleName);
       
+      // Navigate after successful API call
       navigation.navigate('screens/ModuleContent/index', {
         moduleName: moduleName,
-        moduleDescription: module?.description || '',
-        moduleId: module?.id || 'unknown'
+        moduleDescription: moduleDescription,
+        moduleId: moduleId
       });
     } catch (error) {
-      console.error('Navigation error:', error);
-      Alert.alert('Navigation Error', 'Could not navigate to the module content. Please try again.');
+      console.error('Error starting module:', error);
+      Alert.alert(
+        'Error', 
+        'Could not start the module. Please try again.',
+        [{ text: 'OK', onPress: () => console.log('OK Pressed') }]
+      );
     }
   };
 

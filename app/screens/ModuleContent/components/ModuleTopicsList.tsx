@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, Image } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
@@ -21,65 +21,120 @@ interface ModuleTopicsListProps {
   isExpanded: boolean;
   onToggleExpand: () => void;
   onProgressUpdate: (percentage: number) => void;
+  moduleId: string;
+  moduleName: string; // Add moduleName prop
 }
 
 const ModuleTopicsList: React.FC<ModuleTopicsListProps> = ({
   isExpanded,
   onToggleExpand,
-  onProgressUpdate
+  onProgressUpdate,
+  moduleId,
+  moduleName // Add moduleName to props
 }) => {
-  // Sample topic data - moved from index.tsx
-  // Using useState without explicit generic type
-  const [topics, setTopics] = useState([
-    { 
-      id: '1', 
-      title: 'Introduction to the Module', 
-      description: "This is a description of the topic. It can be a brief overview of what the topic is about, what the learner can expect to learn, and why it's important. This is a description of the topic. It can be a brief overview of what the topic is about, what the learner can expect to learn, and why it's important.",
-      isCompleted: true, 
-      subtopics: [], 
-      difficulty: 'beginner' as const, 
-      timeEstimate: '10 mins', 
-      progress: 1,
-      icon: '🚀' // Added icon for visual appeal
-    },
-    { 
-      id: '2', 
-      title: 'Core Concepts', 
-      description:"This is a description of the topic. It can be a brief overview of what the topic is about, what the learner can expect to learn, and why it's important. This is a description of the topic. It can be a brief overview of what the topic is about, what the learner can expect to learn, and why it's important.", 
-      isCompleted: false,
-      subtopics: [],
-      difficulty: 'intermediate' as const,
-      timeEstimate: '20 mins',
-      progress: 0,
-      icon: '🧠' // Added icon for visual appeal
-    },
-    { 
-      id: '3', 
-      title: 'Advanced Techniques', 
-      description: "Delve deeper into complex implementations and strategies to master this subject area. This topic covers advanced concepts that build upon the fundamentals established earlier.", 
-      isCompleted: false,
-      subtopics: [],
-      difficulty: 'advanced' as const,
-      timeEstimate: '30 mins',
-      progress: 0,
-      icon: '⚡' // Added icon for visual appeal
-    }
-  ]);
+  const [topics, setTopics] = useState<ModuleTopic[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Handler functions
-  const handleTopicCompletion = (topicId: string, isCompleted: boolean) => {
-    const updatedTopics = topics.map(topic => 
-      topic.id === topicId 
-        ? { ...topic, isCompleted: !topic.isCompleted } 
-        : topic
-    );
-    setTopics(updatedTopics);
+  // Fetch topics from API
+  const fetchTopics = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      // Use moduleName instead of moduleId in the API call
+      const response = await fetch(`http://192.168.231.152:8000/module-content/${encodeURIComponent(moduleName)}/topics`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch topics');
+      }
+
+      const responseData = await response.json();
+      
+      // Check if data is in the expected format - it should be an array
+      if (Array.isArray(responseData)) {
+        setTopics(responseData);
+        
+        // Calculate initial progress only if we have topics
+        if (responseData.length > 0) {
+          const completedTopics = responseData.filter((topic: ModuleTopic) => topic.isCompleted).length;
+          const progressPercentage = Math.round((completedTopics / responseData.length) * 100);
+          onProgressUpdate(progressPercentage);
+        }
+      } else if (responseData.topics && Array.isArray(responseData.topics)) {
+        // Handle case where API returns { topics: [...] } format
+        setTopics(responseData.topics);
+        
+        if (responseData.topics.length > 0) {
+          const completedTopics = responseData.topics.filter((topic: ModuleTopic) => topic.isCompleted).length;
+          const progressPercentage = Math.round((completedTopics / responseData.topics.length) * 100);
+          onProgressUpdate(progressPercentage);
+        }
+      } else {
+        // If the API response is not an array or doesn't have a topics array
+        console.error('Unexpected API response format:', responseData);
+        setError('Received invalid data format from server');
+        // Set default empty array
+        setTopics([]);
+      }
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+      console.error('Error fetching topics:', err);
+      // Set empty topics array on error
+      setTopics([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Update topic completion status in backend
+  const updateTopicCompletion = async (topicId: string, isCompleted: boolean) => {
+    try {
+      // Replace with your actual API endpoint
+      const response = await fetch(`YOUR_API_BASE_URL/topics/${topicId}/completion`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ isCompleted }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update topic completion');
+      }
+
+      return true;
+    } catch (err) {
+      console.error('Error updating topic completion:', err);
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    if (moduleName) { // Change condition to check for moduleName
+      fetchTopics();
+    }
+  }, [moduleName]); // Change dependency to moduleName
+
+  // Modified handler to update backend
+  const handleTopicCompletion = async (topicId: string, isCompleted: boolean) => {
+    const success = await updateTopicCompletion(topicId, !isCompleted);
     
-    // Calculate updated progress
-    const totalTopics = updatedTopics.length;
-    const completedTopics = updatedTopics.filter(topic => topic.isCompleted).length;
-    const progressPercentage = Math.round((completedTopics / totalTopics) * 100);
-    onProgressUpdate(progressPercentage);
+    if (success) {
+      const updatedTopics = topics.map(topic => 
+        topic.id === topicId 
+          ? { ...topic, isCompleted: !topic.isCompleted } 
+          : topic
+      );
+      setTopics(updatedTopics);
+      
+      // Calculate updated progress
+      const totalTopics = updatedTopics.length;
+      const completedTopics = updatedTopics.filter(topic => topic.isCompleted).length;
+      const progressPercentage = Math.round((completedTopics / totalTopics) * 100);
+      onProgressUpdate(progressPercentage);
+    }
   };
 
   // Get background colors based on difficulty
@@ -148,6 +203,51 @@ const ModuleTopicsList: React.FC<ModuleTopicsListProps> = ({
       </TouchableOpacity>
     );
   };
+
+  // Add loading and error states to the render
+  if (isLoading) {
+    return (
+      <View style={styles.sectionContainer}>
+        <Text style={styles.loadingText}>Loading topics...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.sectionContainer}>
+        <Text style={styles.errorText}>Error: {error}</Text>
+      </View>
+    );
+  }
+
+  // Check if topics exist and is an array
+  if (!Array.isArray(topics) || topics.length === 0) {
+    return (
+      <View style={styles.sectionContainer}>
+        <TouchableOpacity 
+          style={[styles.sectionHeader, isExpanded && styles.activeSection]}
+          onPress={onToggleExpand}
+        >
+          <View style={styles.sectionTitleContainer}>
+            <Ionicons name="list-outline" size={22} color="#4A6FA5" />
+            <Text style={styles.sectionTitle}>Module Topics</Text>
+          </View>
+          <Ionicons 
+            name={isExpanded ? "chevron-up" : "chevron-down"} 
+            size={22} 
+            color="#4A6FA5" 
+          />
+        </TouchableOpacity>
+        
+        {isExpanded && (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No topics available for this module.</Text>
+          </View>
+        )}
+      </View>
+    );
+  }
 
   return (
     <View style={styles.sectionContainer}>
@@ -302,6 +402,24 @@ const styles = StyleSheet.create({
   },
   statusIcon: {
     marginLeft: 8,
+  },
+  loadingText: {
+    padding: 16,
+    textAlign: 'center',
+    color: '#666',
+  },
+  errorText: {
+    padding: 16,
+    textAlign: 'center',
+    color: '#ff0000',
+  },
+  emptyContainer: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  emptyText: {
+    color: '#757575',
+    textAlign: 'center',
   },
 });
 
