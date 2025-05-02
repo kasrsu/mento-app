@@ -72,7 +72,7 @@ const ModuleContent: React.FC = () => {
             onToggleExpand={() => toggleSection('topics')}
             onProgressUpdate={handleProgressUpdate}
             moduleId={moduleId} // Pass moduleId to ModuleTopicsList
-            moduleName={moduleName} // Add moduleName prop
+            moduleName={moduleName} // Ensure we're passing moduleName
           />
 
           {/* Resources Section Component */}

@@ -12,7 +12,7 @@ import PopupMessage from './PoPupMessage/index';
 import { useSession } from '../../../SessionContext';
 
 // Keep existing axios configuration
-axios.defaults.baseURL = 'http://192.168.231.152:8000';
+axios.defaults.baseURL = 'http://192.168.245.152:8000';
 axios.defaults.timeout = 1000000;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 

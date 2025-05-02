@@ -1,59 +1,120 @@
-const API_BASE_URL = 'http://192.168.231.152:8000';
+import axios from 'axios';
 
-export const getModuleTopics = async (moduleName: string) => {
+const API_BASE_URL = 'http://192.168.245.152:8000'; // Keep your current URL
+
+export interface ModuleTopic {
+  id: string;
+  name: string;
+  title: string;
+  description: string;
+  isCompleted: boolean;
+  subtopics: ModuleTopic[];
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  timeEstimate: string;
+  progress: number;
+  icon: string;
+}
+
+export const getModuleTopics = async (moduleName: string): Promise<ModuleTopic[]> => {
   try {
-    const encodedModuleName = encodeURIComponent(moduleName);
-    const response = await fetch(`${API_BASE_URL}/module-content/${encodedModuleName}/topics`);
+    console.log(`Fetching topics for module: ${moduleName}`);
+    
+    // Use POST request with JSON body
+    const response = await axios.post(
+      `${API_BASE_URL}/module-content/${encodeURIComponent(moduleName)}/topics`,
+      { moduleName },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch module topics');
+    console.log('API Response:', response.data);
+
+    if (Array.isArray(response.data)) {
+      return response.data;
     }
 
-    const data = await response.json();
-    
-    // Log the response for debugging
-    console.log('API response for getModuleTopics:', data);
-    
-    // Ensure we return an array
-    if (Array.isArray(data)) {
-      return data;
-    } else if (data.topics && Array.isArray(data.topics)) {
-      return data.topics;
-    } else {
-      console.error('Unexpected API response format:', data);
-      return [];
+    // Handle case where response.data has a data property
+    if (response.data && typeof response.data === 'object' && 'data' in response.data && Array.isArray(response.data.data)) {
+      return response.data.data;
     }
+
+    console.warn('Unexpected response format:', response.data);
+    return [];
+
   } catch (error) {
     console.error('Error fetching module topics:', error);
-    throw error;
+    // Return empty array instead of throwing to prevent component crashes
+    return [];
   }
 };
 
+// Function to update topic completion status
+export const updateTopicCompletion = async (
+  topicId: string, 
+  isCompleted: boolean
+): Promise<boolean> => {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/topics/${topicId}/completion`,
+      { isCompleted },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.status === 200;
+  } catch (error) {
+    console.error('Error updating topic completion:', error);
+    return false;
+  }
+};
+
+/**
+ * Start learning a module - sends module selection to backend
+ */
 export const startModuleLearning = async (moduleData: {
   moduleId: string;
   moduleName: string;
   moduleDescription: string;
-}) => {
+}): Promise<any> => {
   try {
-   // Extract moduleName from moduleData
+    // Ensure moduleData has the required properties
+    if (!moduleData || !moduleData.moduleName) {
+      throw new Error('Invalid module data');
+    }
+    
+    // Encode the module name for the URL
     const encodedModuleName = encodeURIComponent(moduleData.moduleName);
     
-    // Use the correct endpoint format that matches the backend
-    const response = await fetch(`${API_BASE_URL}/module-content/${encodedModuleName}/topics`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(moduleData),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to start module learning');
+    console.log('Starting module learning for:', moduleData);
+    
+    // Make the API call using POST
+    const response = await axios.post(
+      `${API_BASE_URL}/module-content/${encodedModuleName}/topics`,
+      moduleData,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    
+    console.log('API startModuleLearning response:', response.data);
+    
+    return response.data;
+  } catch (error: any) {
+    // Detailed error logging
+    console.error('Error in startModuleLearning:', error);
+    if (error.response) {
+      console.error('Response status:', error.response.status);
+      console.error('Response data:', error.response.data);
     }
-
-    return await response.json();
-  } catch (error) {
-    console.error('Error starting module:', error);
-    throw error;
+    
+    // Return empty object instead of throwing
+    return {};
   }
 };

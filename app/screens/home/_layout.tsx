@@ -6,6 +6,7 @@ import ProgressCard from '../../components/ProgressCard';
 import QuickStartMenu from '../../components/QuickStartMenu';
 import RecommendationsCarousel from '../../components/RecomendationCourse';
 import UpcomingTasks from '../../components/UpcomingTasks';
+import TechRecommendation from '@/app/components/Tech_Recommendation';
 import styles from './styles';
 import CourseInsights from '../../components/CourseInsights';
 import FooterNavBar from '../../components/FooterNavBar';
@@ -34,6 +35,10 @@ export default function HomeScreen() {
 
         <AnimatedWrapper delay={400}>
           <UpcomingTasks />
+        </AnimatedWrapper>
+
+        <AnimatedWrapper delay={400}>
+          <TechRecommendation />
         </AnimatedWrapper>
 
         <AnimatedWrapper delay={500}>

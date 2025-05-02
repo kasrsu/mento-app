@@ -52,27 +52,31 @@ const RecommendationsComponent: React.FC<RecommendationsProps> = ({
       const moduleId = module?.id || 'unknown';
       const moduleDescription = module?.description || '';
 
-      // Send data to backend
-      await startModuleLearning({
-        moduleId,
-        moduleName,
-        moduleDescription
-      });
+      console.log('Starting module learning for:', moduleName);
       
-      console.log('Extracted module name:', moduleName);
-      
-      // Navigate after successful API call
+      // Start navigation first for better user experience
       navigation.navigate('screens/ModuleContent/index', {
         moduleName: moduleName,
         moduleDescription: moduleDescription,
         moduleId: moduleId
       });
+      
+      // Then try API call but don't wait for it
+      startModuleLearning({
+        moduleId,
+        moduleName,
+        moduleDescription
+      }).catch(error => {
+        // Log error but don't show to user since navigation already happened
+        console.error('API error in startModuleLearning (non-blocking):', error);
+      });
+      
     } catch (error) {
-      console.error('Error starting module:', error);
+      console.error('Error in handleModulePress:', error);
       Alert.alert(
-        'Error', 
-        'Could not start the module. Please try again.',
-        [{ text: 'OK', onPress: () => console.log('OK Pressed') }]
+        'Navigation Error', 
+        'Could not open the module content. Please try again.',
+        [{ text: 'OK' }]
       );
     }
   };
