@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://192.168.245.152:8000'; // Keep your current URL
+const API_BASE_URL = 'http://192.168.103.152:8000'; // Keep your current URL
 
 export interface ModuleTopic {
   id: string;

@@ -38,7 +38,7 @@ const Header = () => {
     <View style={styles.header}>
       <Animated.View style={[styles.welcomeSection, animatedTextStyle]}>
         <Text style={styles.welcomeText}>Welcome,</Text>
-        <Text style={styles.nameText}>John Doe</Text>
+        <Text style={styles.nameText}>Anusara</Text>
         <Text style={styles.descriptionText}>Your Personalized Learning Guide</Text>
       </Animated.View>
       <Animated.View style={animatedAvatarStyle}>
