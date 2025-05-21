@@ -1,17 +1,25 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ActivityIndicator,
-  Dimensions,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Platform, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import axios from 'axios';
+import Animated, { useAnimatedStyle, withSpring, withSequence, withTiming, useSharedValue } from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
+import { MaterialIcons, Ionicons } from '@expo/vector-icons';
+
+// Keep existing axios configuration 
+axios.defaults.baseURL = 'http://192.168.103.152:8000';
+axios.defaults.timeout = 1000000;
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+
+// API response interface
+interface ModuleChatResponse {
+  status: 'success' | 'error';
+  message: string;
+  details?: string;
+  relatedContent?: {
+    title: string;
+    content: string;
+  }[];
+}
 
 // Chat message type definition
 interface ChatMessage {
@@ -41,6 +49,7 @@ const ModuleChatInterface: React.FC<ModuleChatInterfaceProps> = ({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
 
   // Quick reply options
@@ -52,9 +61,22 @@ const ModuleChatInterface: React.FC<ModuleChatInterfaceProps> = ({
     { id: '5', text: 'Key concepts', action: 'key_concepts' },
   ];
 
-  // Initialize chat with greeting
+  // Test backend connection on component mount
   useEffect(() => {
-    // Add welcome message when component mounts
+    const testConnection = async () => {
+      try {
+        const response = await axios.get('/');
+        console.log('Backend connection successful:', response.data);
+        setConnectionError(null);
+      } catch (error) {
+        console.error('Backend connection failed:', error);
+        setConnectionError('Unable to connect to server');
+      }
+    };
+    
+    testConnection();
+    
+    // Add welcome message
     setMessages([
       {
         id: '1',
@@ -65,36 +87,96 @@ const ModuleChatInterface: React.FC<ModuleChatInterfaceProps> = ({
     ]);
   }, [moduleTitle]);
 
-  const handleSend = () => {
-    if (inputText.trim() === '') return;
+  // Function to send message to backend API
+  const sendMessageToBackend = async (message: string, moduleContext: string) => {
+    try {
+      console.log(`Sending message to backend: ${message} for module: ${moduleContext}`);
+      
+      // Create a request object that matches your backend's expected format
+      const requestData = {
+        message: message,
+        context: {
+          module: moduleContext,
+          type: 'module_query'
+        }
+      };
+      
+      // Use the existing /chat endpoint
+      const response = await axios.post<ModuleChatResponse>('/chat', requestData);
+      
+      console.log('Backend response:', response.data);
+      
+      if (response.data && response.data.message) {
+        return response.data.message;
+      } else {
+        throw new Error(response.data.details || 'Unknown error occurred');
+      }
+    } catch (error) {
+      throw new Error('Failed to get response from server');
+    }
+  };
+
+  const handleSend = async () => {
+    if (inputText.trim() === '' || isLoading) return;
     
     // Add user message
+    const userMessageId = Date.now().toString();
     const newMessage: ChatMessage = {
-      id: Date.now().toString(),
+      id: userMessageId,
       text: inputText,
       sender: 'user',
       timestamp: new Date(),
     };
     
-    setMessages([...messages, newMessage]);
+    setMessages(prev => [...prev, newMessage]);
     setInputText('');
     setIsLoading(true);
     
-    // Simulate AI response (replace with actual API call)
-    setTimeout(() => {
+    try {
+      // Give haptic feedback if on a mobile device
+      if (Platform.OS !== 'web') {
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      }
+      
+      // Get response from backend
+      const responseText = await sendMessageToBackend(inputText.trim(), moduleTitle);
+      
+      // Add assistant message with response
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        text: `Here's some information about "${inputText}" related to ${moduleTitle}. What else would you like to know?`,
+        text: responseText,
         sender: 'assistant',
         timestamp: new Date(),
       };
+      
       setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error('Failed to process message:', error);
+      
+      // Add error message
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        text: error instanceof Error 
+          ? error.message 
+          : 'Sorry, I had trouble processing your request. Please try again.',
+        sender: 'assistant',
+        timestamp: new Date(),
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+      // Scroll to bottom after a short delay to ensure render is complete
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    }
   };
 
-  const handleQuickReply = (reply: QuickReply) => {
-    // Process quick reply based on action
+  const handleQuickReply = async (reply: QuickReply) => {
+    if (isLoading) return;
+    
+    // Process quick reply
     const replyMessage: ChatMessage = {
       id: Date.now().toString(),
       text: reply.text,
@@ -102,41 +184,65 @@ const ModuleChatInterface: React.FC<ModuleChatInterfaceProps> = ({
       timestamp: new Date(),
     };
     
-    setMessages([...messages, replyMessage]);
+    setMessages(prev => [...prev, replyMessage]);
     setIsLoading(true);
     
-    // Simulate response based on quick reply
-    setTimeout(() => {
-      let responseText = '';
+    try {
+      // Construct a more detailed query based on the quick reply action
+      let queryText = '';
       switch (reply.action) {
         case 'explain_simple':
-          responseText = `Here's ${moduleTitle} explained in simple terms...`;
+          queryText = `Please explain ${moduleTitle} in simple terms.`;
           break;
         case 'give_example':
-          responseText = `Here's an example from ${moduleTitle}...`;
+          queryText = `Give me a practical example from ${moduleTitle}.`;
           break;
         case 'more_resources':
-          responseText = `Here are some additional resources for ${moduleTitle}...`;
+          queryText = `What additional resources do you recommend for learning ${moduleTitle}?`;
           break;
         case 'course_structure':
-          responseText = `The ${moduleTitle} course is structured as follows...`;
+          queryText = `Explain the structure of the ${moduleTitle} course.`;
           break;
         case 'key_concepts':
-          responseText = `Key concepts in ${moduleTitle} include...`;
+          queryText = `What are the key concepts in ${moduleTitle}?`;
           break;
         default:
-          responseText = `Let me help you with that.`;
+          queryText = reply.text;
       }
       
+      // Get response from backend
+      const responseText = await sendMessageToBackend(queryText, moduleTitle);
+      
+      // Add assistant message
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         text: responseText,
         sender: 'assistant',
         timestamp: new Date(),
       };
+      
       setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error('Failed to process quick reply:', error);
+      
+      // Add error message
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        text: error instanceof Error 
+          ? error.message 
+          : 'Sorry, I had trouble with that request. Please try again.',
+        sender: 'assistant',
+        timestamp: new Date(),
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+      // Scroll to bottom
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    }
   };
 
   const togglePinMessage = (messageId: string) => {
@@ -153,14 +259,28 @@ const ModuleChatInterface: React.FC<ModuleChatInterfaceProps> = ({
   }, [messages]);
 
   // Only show quick replies for the first few messages
-  const shouldShowQuickReplies = messages.length <= 2;
+  const shouldShowQuickReplies = messages.length <= 3;
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-    >
+    <View style={styles.container}>
+      {/* Connection error banner */}
+      {connectionError && (
+        <View style={styles.errorBanner}>
+          <Text style={styles.errorText}>{connectionError}</Text>
+          <TouchableOpacity 
+            style={styles.retryButton}
+            onPress={() => {
+              // Retry connection
+              axios.get('/')
+                .then(() => setConnectionError(null))
+                .catch(err => console.error('Retry failed:', err));
+            }}
+          >
+            <Text style={styles.retryText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+      
       {/* Module title header - Only shown if noHeader is false */}
       {!noHeader && (
         <View style={styles.header}>
@@ -224,6 +344,7 @@ const ModuleChatInterface: React.FC<ModuleChatInterfaceProps> = ({
         {isLoading && (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="small" color="#3A86FF" />
+            <Text style={styles.loadingText}>Getting answer...</Text>
           </View>
         )}
       </ScrollView>
@@ -243,6 +364,7 @@ const ModuleChatInterface: React.FC<ModuleChatInterfaceProps> = ({
                 key={reply.id}
                 style={styles.quickReplyButton}
                 onPress={() => handleQuickReply(reply)}
+                disabled={isLoading}
               >
                 <Text style={styles.quickReplyText}>{reply.text}</Text>
               </TouchableOpacity>
@@ -259,16 +381,20 @@ const ModuleChatInterface: React.FC<ModuleChatInterfaceProps> = ({
           value={inputText}
           onChangeText={setInputText}
           multiline
+          editable={!isLoading}
         />
         <TouchableOpacity
-          style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
+          style={[
+            styles.sendButton, 
+            (!inputText.trim() || isLoading) && styles.sendButtonDisabled
+          ]}
           onPress={handleSend}
-          disabled={!inputText.trim()}
+          disabled={!inputText.trim() || isLoading}
         >
           <Ionicons name="send" size={24} color="#FFF" />
         </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 
@@ -445,6 +571,33 @@ const styles = StyleSheet.create({
   sendButtonDisabled: {
     backgroundColor: '#9EB8E8',
   },
+  errorBanner: {
+    backgroundColor: '#FFEBEE',
+    padding: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  errorText: {
+    color: '#D32F2F',
+    fontSize: 14,
+  },
+  retryButton: {
+    backgroundColor: '#D32F2F',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 4,
+  },
+  retryText: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  loadingText: {
+    marginTop: 5,
+    fontWeight: '600',
+    color: '#666',
+    fontSize: 12,
+  },
 });
-
 export default ModuleChatInterface;

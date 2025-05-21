@@ -60,7 +60,7 @@ const ModuleChat: React.FC<ModuleChatProps> = ({ moduleTitle }) => {
         <View style={styles.collapsedChatContainer}>
           <TextInput
             style={styles.collapsedChatInput}
-            placeholder="Ask about this module..."
+            placeholder={`Ask about ${moduleTitle}...`}
             onFocus={handleChatFocus}
           />
           <TouchableOpacity style={styles.collapsedSendButton}>
