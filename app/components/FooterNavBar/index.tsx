@@ -7,10 +7,10 @@ import styles from './styles';
 
 const navItems: { id: number; label: string; icon: 'home' | 'explore' | 'trending-up' | 'notifications' | 'chat'; route: string }[] = [
   { id: 1, label: 'Home', icon: 'home', route: '/screens/home' },
-  { id: 2, label: 'Explore', icon: 'explore', route: '/screens/ModuleContent' },
   { id: 3, label: 'Progress', icon: 'trending-up', route: '/screens/Recommendations' },
   { id: 4, label: 'clear', icon: 'notifications', route: '/screens/ClearSession' },
   { id: 5, label: 'Chat', icon: 'chat', route: '/screens/Chat' },
+  { id: 2, label: 'Dashboard', icon: 'dashboard', route: '/screens/Dashboard' }
 ];
 
 const FooterNavBar = () => {

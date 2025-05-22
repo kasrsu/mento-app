@@ -2,7 +2,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { NavigationProp as RNNavigationProp } from '@react-navigation/native';
 
 export type RootStackParamList = {
-  // Main route names
+  // Main route names with consistent parameter definitions
   Home: undefined;
   Dashboard: undefined;
   Progress: undefined;
@@ -19,7 +19,8 @@ export type RootStackParamList = {
     moduleDescription: string;
     moduleId: string;
   };
-  // Path-style routes for backward compatibility
+  
+  // Path-style routes
   'screens/home/index': undefined;
   'screens/Dashboard/index': undefined;
   'screens/progress/index': undefined;

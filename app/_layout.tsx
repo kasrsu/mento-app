@@ -24,7 +24,13 @@ export default function RootLayout() {
           }}
         />
         <Stack.Screen 
-          name="screens/Reccomendations/index" 
+          name="screens/Dashboard/index" 
+          options={{
+            title: 'Dashboard',
+          }}
+        />
+        <Stack.Screen 
+          name="screens/Recommendations/index" 
           options={{
             title: 'Recommendations',
           }}
@@ -33,6 +39,12 @@ export default function RootLayout() {
           name="screens/chat/index" 
           options={{
             title: 'Chat',
+          }}
+        />
+        <Stack.Screen 
+          name="screens/ModuleContent/index" 
+          options={{
+            title: 'Module Content',
           }}
         />
       </Stack>

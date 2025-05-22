@@ -7,7 +7,8 @@ import ProgressScreen from '../screens/progress/index';
 import RecommendationsScreen from '../screens/Recommendations/index';
 import ModuleContent from '../screens/ModuleContent/index';
 import ChatScreen from '../screens/Chat/index';
-import { RootStackParamList } from './types'; // Import the shared type
+import DashboardScreen from '../screens/Dashboard/index';
+import { RootStackParamList } from './types'; // Import from the main types file
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -25,42 +26,43 @@ const MainNavigator: React.FC = () => (
       <Stack.Screen 
         name="Home" 
         component={HomeScreen}
-        options={{
-          headerShown: false,
-        }} 
+        options={{ headerShown: false }} 
       />
       <Stack.Screen 
         name="Progress" 
         component={ProgressScreen}
-        options={{
-          headerShown: false,
-        }} 
+        options={{ headerShown: false }} 
+      />
+      <Stack.Screen 
+        name="Dashboard" 
+        component={DashboardScreen}
+        options={{ headerShown: false }} 
       />
       <Stack.Screen 
         name="Recommendations" 
         component={RecommendationsScreen}
-        options={{
-          headerShown: false,
-        }} 
+        options={{ headerShown: false }} 
       />
       <Stack.Screen 
         name="Chat" 
         component={ChatScreen}
-        options={{
-          headerShown: false,
-        }} 
+        options={{ headerShown: false }} 
       />
       <Stack.Screen 
         name="ModuleContent" 
         component={ModuleContent}
-        options={{
-          headerShown: false,
-        }} 
+        options={{ headerShown: false }} 
       />
+      
       {/* Add path-style routes for backward compatibility */}
       <Stack.Screen 
         name="screens/home/index" 
         component={HomeScreen}
+        options={{ headerShown: false }} 
+      />
+      <Stack.Screen 
+        name="screens/Dashboard/index" 
+        component={DashboardScreen}
         options={{ headerShown: false }} 
       />
       <Stack.Screen 
