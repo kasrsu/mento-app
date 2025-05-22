@@ -17,7 +17,7 @@ interface RecommendationItem {
 }
 
 const width = Dimensions.get('window').width;
-const API_BASE_URL = 'http://192.168.245.152:8000/api';  // Update this with your server IP
+const API_BASE_URL = 'http://192.168.103.152:8000/api';  // Update this with your server IP
 
 const TechRecommendation: React.FC = () => {
   const [recommendations, setRecommendations] = useState<RecommendationItem[]>([]);
