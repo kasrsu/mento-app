@@ -1,50 +1,102 @@
-# Welcome to your Expo app 👋
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+# 📱 MENTO Frontend — Expo App
 
-## Get started
+![Expo](https://img.shields.io/badge/Expo-48C9B0?logo=expo)
+![React Native](https://img.shields.io/badge/React%20Native-20232A?logo=react)
+![Platform](https://img.shields.io/badge/Platforms-Android%20%7C%20iOS%20%7C%20Web-blue)
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+MENTO is an AI-powered course guidance system for IT freshers. This mobile-first frontend is built using **Expo + React Native**, providing users a smooth and responsive interface to interact with the MENTO backend and chatbot system.
 
-2. Start the app
+---
 
-   ```bash
-    npx expo start
-   ```
+## ⚙️ Get Started
 
-In the output, you'll find options to open the app in a
+### 1. Install Dependencies
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+```bash
+npm install
+````
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### 2. Start the App
 
-## Get a fresh project
+```bash
+npx expo start
+```
 
-When you're ready, run:
+After launching, you’ll see options to open the app in:
+
+* 📱 [Expo Go](https://expo.dev/go) (on your physical device)
+* 📱 Android Emulator
+* 🍎 iOS Simulator
+* 🌐 Web browser (for quick testing)
+
+> ✅ **Recommended**: Use a [development build](https://docs.expo.dev/develop/development-builds/introduction/) for full feature access.
+
+---
+
+## 🗂 Project Structure
+
+```bash
+app/
+├── components/              # Reusable UI components (ChatInterface, Header, ProgressCard)
+├── context/                 # Global state (SessionContext.tsx)
+├── navigation/              # App screen navigation and types
+├── screens/                 # Main app screens (Chat, Home, Profile, Recommendations)
+├── types/                   # TypeScript interfaces (e.g. Module.ts)
+└── App.tsx                  # Entry point of the Expo app
+```
+
+---
+
+## ♻️ Reset Project (Optional)
+
+To reset the app and start fresh:
 
 ```bash
 npm run reset-project
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+This will archive the current app to `app-example/` and generate a blank structure under `app/`.
 
-## Learn more
+---
 
-To learn more about developing your project with Expo, look at the following resources:
+## 🔗 Backend Integration
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+This app is connected to the [MENTO backend](https://github.com/kasrsu/project_mento), which powers the chatbot and recommendation engine. Make sure the backend API is running and accessible when using the app.
 
-## Join the community
+> ⚠️ **IMPORTANT**: Update the API base URL in the relevant context or service files before building.
 
-Join our community of developers creating universal apps.
+---
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## 📚 Learn More
+
+* [📘 Expo Documentation](https://docs.expo.dev/)
+* [📘 React Native Docs](https://reactnative.dev/)
+* [📘 Expo Router (File-based Routing)](https://docs.expo.dev/router/introduction/)
+
+---
+
+## 🤝 Join the Community
+
+* 💬 [Expo Discord](https://chat.expo.dev/)
+* 💻 [Expo GitHub](https://github.com/expo/expo)
+
+---
+
+## 🧑‍💻 Maintainer
+
+**Anusara (KASR)**
+📧 [your-email@example.com](mailto:your-email@example.com)
+🌐 [GitHub: kasrsu](https://github.com/kasrsu)
+
+---
+
+## 📄 License
+
+This project is part of the MENTO AI initiative and is licensed under [MIT License](LICENSE).
+
+---
+
+
